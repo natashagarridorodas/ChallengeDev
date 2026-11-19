@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ export class PlayerList implements OnInit {
   private readonly playerService = inject(PlayerService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   players: Player[] = [];
   isLoading = false;
@@ -50,18 +51,22 @@ export class PlayerList implements OnInit {
   loadPlayers(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
 
     this.playerService.getPlayers(this.getCurrentFilters()).subscribe({
       next: (res) => {
-        this.players = res.data;
-        this.currentPage = res.pagination.currentPage;
-        this.totalItems = res.pagination.totalItems;
-        this.totalPages = Math.max(res.pagination.totalPages, 1);
+        this.players = Array.isArray(res?.data) ? res.data : [];
+        this.currentPage = res?.pagination?.currentPage ?? this.currentPage;
+        this.totalItems = res?.pagination?.totalItems ?? this.players.length;
+        this.totalPages = Math.max(res?.pagination?.totalPages ?? 1, 1);
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
+        this.players = [];
         this.isLoading = false;
         this.errorMessage = err?.error?.error || 'Error al cargar los jugadores.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -87,6 +92,8 @@ export class PlayerList implements OnInit {
 
   onExportCsv(): void {
     this.errorMessage = '';
+    this.cdr.markForCheck();
+
     this.playerService.exportCsv(this.getCurrentFilters()).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -98,6 +105,7 @@ export class PlayerList implements OnInit {
       },
       error: () => {
         this.errorMessage = 'No se pudo exportar el listado a CSV.';
+        this.cdr.markForCheck();
       },
     });
   }

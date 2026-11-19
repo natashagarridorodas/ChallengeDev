@@ -1,4 +1,12 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -26,6 +34,7 @@ Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Fi
 export class PlayerDetail implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly playerService = inject(PlayerService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('radarCanvas') radarCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -36,18 +45,17 @@ export class PlayerDetail implements OnInit, OnDestroy {
   private radarChart: Chart<'radar'> | null = null;
   private routeSub?: Subscription;
   private playerSub?: Subscription;
-  private chartTimeoutId?: ReturnType<typeof setTimeout>;
 
   ngOnInit(): void {
     this.routeSub = this.route.paramMap.subscribe((params) => {
       this.resetState();
 
-      const idParam = params.get('id');
-      const id = Number(idParam);
+      const id = Number(params.get('id'));
 
       if (!id || Number.isNaN(id) || id <= 0) {
         this.isLoading = false;
         this.errorMessage = 'ID de jugador inválido.';
+        this.cdr.markForCheck();
         return;
       }
 
@@ -57,14 +65,11 @@ export class PlayerDetail implements OnInit, OnDestroy {
 
   private resetState(): void {
     this.playerSub?.unsubscribe();
-    if (this.chartTimeoutId) {
-      clearTimeout(this.chartTimeoutId);
-      this.chartTimeoutId = undefined;
-    }
     this.destroyChart();
     this.player = null;
     this.errorMessage = '';
     this.isLoading = true;
+    this.cdr.markForCheck();
   }
 
   private loadPlayer(id: number): void {
@@ -74,17 +79,22 @@ export class PlayerDetail implements OnInit, OnDestroy {
           this.player = null;
           this.isLoading = false;
           this.errorMessage = 'No se encontraron datos para este jugador.';
+          this.cdr.detectChanges();
           return;
         }
 
         this.player = res.data;
         this.isLoading = false;
-        this.chartTimeoutId = setTimeout(() => this.renderRadarChart(), 50);
+
+        // Renderiza ahora el @if para que exista el <canvas #radarCanvas>
+        this.cdr.detectChanges();
+        this.renderRadarChart();
       },
       error: (err) => {
         this.player = null;
         this.isLoading = false;
         this.errorMessage = err?.error?.error || 'No se pudo cargar el detalle del jugador.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -144,9 +154,6 @@ export class PlayerDetail implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.playerSub?.unsubscribe();
-    if (this.chartTimeoutId) {
-      clearTimeout(this.chartTimeoutId);
-    }
     this.destroyChart();
   }
 }
