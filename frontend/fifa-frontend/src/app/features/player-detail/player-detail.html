@@ -1,0 +1,35 @@
+<div class="detail-container">
+  <div class="top-actions">
+    <a routerLink="/players">← Volver al listado</a>
+    @if (player?.id) {
+      <a [routerLink]="['/players', player?.id, 'edit']">Editar jugador</a>
+    }
+  </div>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (isLoading) {
+    <p>Cargando detalle del jugador...</p>
+  } @else if (player) {
+    <h2>{{ player.name }}</h2>
+    <p><strong>Club:</strong> {{ player.club || '-' }}</p>
+    <p><strong>Posición:</strong> {{ player.position || '-' }}</p>
+    <p><strong>Género:</strong> {{ player.gender }}</p>
+    <p><strong>Edición FIFA:</strong> {{ player.edition }}</p>
+
+    <div class="skills-summary">
+      <span>PAC: {{ player.pace }}</span> |
+      <span>SHO: {{ player.shooting }}</span> |
+      <span>PAS: {{ player.passing }}</span> |
+      <span>DRI: {{ player.dribbling }}</span> |
+      <span>DEF: {{ player.defending }}</span> |
+      <span>PHY: {{ player.physical }}</span>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas #radarCanvas></canvas>
+    </div>
+  }
+</div>

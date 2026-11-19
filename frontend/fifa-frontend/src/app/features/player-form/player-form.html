@@ -1,0 +1,76 @@
+<div class="form-container">
+  <a routerLink="/players">← Volver al listado</a>
+  <h2>{{ isEditMode ? 'Editar Jugador' : 'Crear Nuevo Jugador' }}</h2>
+
+  <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label for="name">Nombre *</label>
+      <input id="name" type="text" formControlName="name" />
+      @if (playerForm.controls.name.touched && playerForm.controls.name.invalid) {
+        <small class="error">El nombre es obligatorio.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="club">Club</label>
+      <input id="club" type="text" formControlName="club" />
+    </div>
+
+    <div class="field">
+      <label for="position">Posición</label>
+      <input id="position" type="text" formControlName="position" placeholder="Ej: RW, ST, CM" />
+    </div>
+
+    <div class="field">
+      <label for="gender">Género *</label>
+      <select id="gender" formControlName="gender">
+        <option value="male">Masculino (male)</option>
+        <option value="female">Femenino (female)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="edition">Edición FIFA (2015 - 2023) *</label>
+      <input id="edition" type="number" formControlName="edition" min="2015" max="2023" />
+      @if (playerForm.controls.edition.touched && playerForm.controls.edition.invalid) {
+        <small class="error">La edición debe estar entre 2015 y 2023.</small>
+      }
+    </div>
+
+    <h3>Habilidades (0 - 99)</h3>
+    <div class="skills-grid">
+      <div class="field">
+        <label for="pace">Ritmo (PAC) *</label>
+        <input id="pace" type="number" formControlName="pace" min="0" max="99" />
+      </div>
+      <div class="field">
+        <label for="shooting">Tiro (SHO) *</label>
+        <input id="shooting" type="number" formControlName="shooting" min="0" max="99" />
+      </div>
+      <div class="field">
+        <label for="passing">Pase (PAS) *</label>
+        <input id="passing" type="number" formControlName="passing" min="0" max="99" />
+      </div>
+      <div class="field">
+        <label for="dribbling">Regate (DRI) *</label>
+        <input id="dribbling" type="number" formControlName="dribbling" min="0" max="99" />
+      </div>
+      <div class="field">
+        <label for="defending">Defensa (DEF) *</label>
+        <input id="defending" type="number" formControlName="defending" min="0" max="99" />
+      </div>
+      <div class="field">
+        <label for="physical">Físico (PHY) *</label>
+        <input id="physical" type="number" formControlName="physical" min="0" max="99" />
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Guardando...' : (isEditMode ? 'Guardar cambios' : 'Crear jugador') }}
+    </button>
+  </form>
+</div>

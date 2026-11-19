@@ -1,0 +1,55 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: fifa_mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fifa_db
+      MYSQL_USER: fifa_user
+      MYSQL_PASSWORD: fifapassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fifa_backend_container
+    restart: always
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DB_NAME: fifa_db
+      DB_USER: fifa_user
+      DB_PASSWORD: fifapassword
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      DB_DIALECT: mysql
+      JWT_SECRET: fifa_secret_key_2026
+      JWT_EXPIRES_IN: 1h
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend/fifa-frontend
+      dockerfile: Dockerfile
+    container_name: fifa_frontend_container
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  mysql_data:

@@ -1,0 +1,70 @@
+<div class="list-container">
+  <header class="header">
+    <h2>Jugadores FIFA (2015 - 2023)</h2>
+    <div class="actions">
+      <a routerLink="/players/new">+ Nuevo Jugador</a>
+      <button type="button" (click)="onExportCsv()">Exportar CSV</button>
+      <button type="button" (click)="onLogout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="filters">
+    <input type="text" formControlName="name" placeholder="Filtrar por nombre" />
+    <input type="text" formControlName="club" placeholder="Filtrar por club" />
+    <input type="text" formControlName="position" placeholder="Filtrar por posición" />
+    <button type="submit">Filtrar</button>
+    <button type="button" (click)="onClearFilters()">Limpiar</button>
+  </form>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (isLoading) {
+    <p>Cargando jugadores...</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Club</th>
+          <th>Posición</th>
+          <th>Género</th>
+          <th>Edición</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (player of players; track player.id) {
+          <tr>
+            <td>{{ player.id }}</td>
+            <td>{{ player.name }}</td>
+            <td>{{ player.club || '-' }}</td>
+            <td>{{ player.position || '-' }}</td>
+            <td>{{ player.gender }}</td>
+            <td>{{ player.edition }}</td>
+            <td>
+              <a [routerLink]="['/players', player.id]">Detalle</a>
+              <a [routerLink]="['/players', player.id, 'edit']">Editar</a>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7">No se encontraron jugadores con los filtros aplicados.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage <= 1">
+        Anterior
+      </button>
+      <span>Página {{ currentPage }} de {{ totalPages }} (Total: {{ totalItems }})</span>
+      <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages">
+        Siguiente
+      </button>
+    </div>
+  }
+</div>
