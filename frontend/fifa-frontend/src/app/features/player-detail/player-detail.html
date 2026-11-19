@@ -1,35 +1,66 @@
-<div class="detail-container">
-  <div class="top-actions">
-    <a routerLink="/players">← Volver al listado</a>
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <a routerLink="/players" class="btn btn-outline-secondary btn-sm">← Volver al listado</a>
     @if (player?.id) {
-      <a [routerLink]="['/players', player?.id, 'edit']">Editar jugador</a>
+      <a [routerLink]="['/players', player?.id, 'edit']" class="btn btn-primary btn-sm">Editar jugador</a>
     }
   </div>
 
   @if (errorMessage) {
-    <p class="error">{{ errorMessage }}</p>
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
   }
 
   @if (isLoading) {
-    <p>Cargando detalle del jugador...</p>
-  } @else if (player) {
-    <h2>{{ player.name }}</h2>
-    <p><strong>Club:</strong> {{ player.club || '-' }}</p>
-    <p><strong>Posición:</strong> {{ player.position || '-' }}</p>
-    <p><strong>Género:</strong> {{ player.gender }}</p>
-    <p><strong>Edición FIFA:</strong> {{ player.edition }}</p>
-
-    <div class="skills-summary">
-      <span>PAC: {{ player.pace }}</span> |
-      <span>SHO: {{ player.shooting }}</span> |
-      <span>PAS: {{ player.passing }}</span> |
-      <span>DRI: {{ player.dribbling }}</span> |
-      <span>DEF: {{ player.defending }}</span> |
-      <span>PHY: {{ player.physical }}</span>
+    <div class="d-flex align-items-center gap-2 text-muted py-4">
+      <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+      <span>Cargando detalle del jugador...</span>
     </div>
+  } @else if (player) {
+    <div class="row g-4">
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4">
+            <h1 class="h3 mb-3">{{ player.name }}</h1>
 
-    <div class="chart-wrapper">
-      <canvas #radarCanvas></canvas>
+            <dl class="row mb-4">
+              <dt class="col-5 text-muted">Club</dt>
+              <dd class="col-7">{{ player.club || '-' }}</dd>
+
+              <dt class="col-5 text-muted">Posición</dt>
+              <dd class="col-7">{{ player.position || '-' }}</dd>
+
+              <dt class="col-5 text-muted">Género</dt>
+              <dd class="col-7 text-capitalize">{{ player.gender }}</dd>
+
+              <dt class="col-5 text-muted">Edición FIFA</dt>
+              <dd class="col-7 mb-0">{{ player.edition }}</dd>
+            </dl>
+
+            <h2 class="h6 text-uppercase text-muted mb-2">Habilidades</h2>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge text-bg-primary px-3 py-2">PAC: {{ player.pace }}</span>
+              <span class="badge text-bg-primary px-3 py-2">SHO: {{ player.shooting }}</span>
+              <span class="badge text-bg-primary px-3 py-2">PAS: {{ player.passing }}</span>
+              <span class="badge text-bg-primary px-3 py-2">DRI: {{ player.dribbling }}</span>
+              <span class="badge text-bg-primary px-3 py-2">DEF: {{ player.defending }}</span>
+              <span class="badge text-bg-primary px-3 py-2">PHY: {{ player.physical }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4 d-flex flex-column justify-content-center">
+            <h2 class="h6 text-uppercase text-muted text-center mb-3">Radar de Habilidades</h2>
+            <div class="w-100" style="max-height: 420px;">
+              <canvas #radarCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   }
 </div>
